@@ -46,10 +46,13 @@
 
 #cxuan
 #set -x
-VIRTUALENVWRAPPER_PYTHON=/cygdrive/c/Python/26/python.exe
-VIRTUALENVWRAPPER_VIRTUALENV=/cygdrive/c/Python/26/Scripts/virtualenv.exe
-WORKON_HOME=/cygdrive/d/NewmanDev/env
-export VIRTUALENVWRAPPER_LOG_DIR="D:\NewmanDev\env"
+VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python2.7
+WORKON_HOME=$HOME/dev/python/env
+VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/Cellar/python/2.7.1/bin/virtualenv
+#VIRTUALENVWRAPPER_PYTHON=/cygdrive/c/Python/26/python.exe
+#VIRTUALENVWRAPPER_VIRTUALENV=/cygdrive/c/Python/26/Scripts/virtualenv.exe
+#WORKON_HOME=/cygdrive/d/NewmanDev/env
+#export VIRTUALENVWRAPPER_LOG_DIR="D:\NewmanDev\env"
 #cxuan
 # Locate the global Python where virtualenvwrapper is installed.
 if [ "$VIRTUALENVWRAPPER_PYTHON" = "" ]
@@ -63,9 +66,19 @@ then
     VIRTUALENVWRAPPER_VIRTUALENV="virtualenv"
 fi
 
+is_cygwin_win32py () {
+    _PLATFORM=$($VIRTUALENVWRAPPER_PYTHON -c "import sys; sys.stdout.write(sys.platform); sys.stdout.flush()")
+    if [ "$OSTYPE" = "cygwin" ] && [ "$_PLATFORM" = "win32" ] 
+    then 
+        return 0
+    else
+        return 1
+    fi
+}
+
 # Define script folder depending on the platorm (Win32/Unix)
 VIRTUALENVWRAPPER_ENV_BIN_DIR="bin"
-if ( [ "$OS" = "Windows_NT" ] && [ "$MSYSTEM" = "MINGW32" ] ) || [ is_cygwin_win32py ]
+if ( [ "$OS" = "Windows_NT" ] && [ "$MSYSTEM" = "MINGW32" ] ) || is_cygwin_win32py
 then
 	# Only assign this for msys, cygwin use standard Unix paths
 	# and its own python installation 
@@ -154,7 +167,7 @@ virtualenvwrapper_run_hook () {
         echo "ERROR: VIRTUALENVWRAPPER_LOG_DIR is not set." 1>&2
         return 1
     fi
-    if [ is_cygwin_win32py ]
+    if is_cygwin_win32py
     then
         "$VIRTUALENVWRAPPER_PYTHON" -c 'from virtualenvwrapper.hook_loader import main; main()' $HOOK_VERBOSE_OPTION --script $(cygpath -w $hook_script) "$@"
     else
@@ -663,16 +676,6 @@ cpvirtualenv() {
     workon "$new_env"
     virtualenvwrapper_run_hook "post_mkvirtualenv"
     virtualenvwrapper_run_hook "post_cpvirtualenv"
-}
-
-is_cygwin_win32py () {
-    _PLATFORM=$($VIRTUALENVWRAPPER_PYTHON -c "import sys; sys.stdout.write(sys.platform); sys.stdout.flush()")
-    if [ "$OSTYPE" = "cygwin" ] && [ "$_PLATFORM" = "win32" ] 
-    then 
-        return 1
-    else
-        return 0
-    fi
 }
 
 #
