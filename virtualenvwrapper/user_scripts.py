@@ -20,14 +20,15 @@ log = logging.getLogger(__name__)
 is_msys = False
 is_cygwin_win32py = False
     
-# Are we running under msys
+# Are we running under msys or cygwin + windows python
 uname = subprocess.Popen(['uname'], stdout=subprocess.PIPE).communicate()[0]
-if sys.platform == 'win32' and os.environ.get('OS') == 'Windows_NT' and os.environ.get('MSYSTEM') == 'MINGW32':
-    is_msys = True
+if sys.platform == 'win32' and os.environ.get('OS') == 'Windows_NT':
     script_folder = 'Scripts'
-elif sys.platform == 'win32' and os.environ.get('OS') == 'Windows_NT' and uname.startswith('CYGWIN'):
-    is_cygwin_win32py = True
-    script_folder = 'Scripts'
+    if os.environ.get('MSYSTEM') == 'MINGW32':
+        is_msys = True
+    #elif uname.startswith('CYGWIN'):
+    elif os.environ.get('OSTYPE') == 'cygwin':
+        is_cygwin_win32py = True
 else:
     script_folder = 'bin'
 
@@ -265,9 +266,10 @@ def get_path(*args):
             path = ''.join((path[1],':',path[2:]))
         path = path.replace('/', os.sep)
     elif is_cygwin_win32py:
+        if not path.startswith('/cygdrive') and not re.match(r'[a-zA-Z]:.*', path):
+            path = os.environ['CYGWIN_HOME'] + path
         if re.match(r'^/cygdrive/[a-zA-Z](/|^)', path):
             # cygwin path could starts with '/cygdrive/c/'-form drive letter
             path = ''.join((path[10],':',path[11:]))
         path = path.replace('/', os.sep)
-        
     return os.path.abspath(path)

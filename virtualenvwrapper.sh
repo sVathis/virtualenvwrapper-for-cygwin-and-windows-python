@@ -46,13 +46,14 @@
 
 #cxuan
 #set -x
-VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python2.7
-WORKON_HOME=$HOME/dev/python/env
-VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/Cellar/python/2.7.1/bin/virtualenv
-#VIRTUALENVWRAPPER_PYTHON=/cygdrive/c/Python/26/python.exe
-#VIRTUALENVWRAPPER_VIRTUALENV=/cygdrive/c/Python/26/Scripts/virtualenv.exe
-#WORKON_HOME=/cygdrive/d/NewmanDev/env
-#export VIRTUALENVWRAPPER_LOG_DIR="D:\NewmanDev\env"
+#VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python2.7
+#WORKON_HOME=$HOME/dev/python/env
+#VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/Cellar/python/2.7.1/bin/virtualenv
+VIRTUALENVWRAPPER_PYTHON=/cygdrive/f/Python/26/python.exe
+VIRTUALENVWRAPPER_VIRTUALENV=/cygdrive/f/Python/26/Scripts/virtualenv.exe
+WORKON_HOME=/cygdrive/f/Newman/env
+export OSTYPE
+export CYGWIN_HOME=/cygdrive/f/cygwin
 #cxuan
 # Locate the global Python where virtualenvwrapper is installed.
 if [ "$VIRTUALENVWRAPPER_PYTHON" = "" ]
@@ -167,12 +168,7 @@ virtualenvwrapper_run_hook () {
         echo "ERROR: VIRTUALENVWRAPPER_LOG_DIR is not set." 1>&2
         return 1
     fi
-    if is_cygwin_win32py
-    then
-        "$VIRTUALENVWRAPPER_PYTHON" -c 'from virtualenvwrapper.hook_loader import main; main()' $HOOK_VERBOSE_OPTION --script $(cygpath -w $hook_script) "$@"
-    else
-        "$VIRTUALENVWRAPPER_PYTHON" -c 'from virtualenvwrapper.hook_loader import main; main()' $HOOK_VERBOSE_OPTION --script "$hook_script" "$@"
-    fi
+    "$VIRTUALENVWRAPPER_PYTHON" -c 'from virtualenvwrapper.hook_loader import main; main()' $HOOK_VERBOSE_OPTION --script "$hook_script" "$@"
     result=$?
     
     if [ $result -eq 0 ]
