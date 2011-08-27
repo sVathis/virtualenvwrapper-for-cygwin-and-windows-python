@@ -46,14 +46,11 @@
 
 #cxuan
 #set -x
-#VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python2.7
-#WORKON_HOME=$HOME/dev/python/env
-#VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/Cellar/python/2.7.1/bin/virtualenv
-VIRTUALENVWRAPPER_PYTHON=/cygdrive/f/Python/26/python.exe
-VIRTUALENVWRAPPER_VIRTUALENV=/cygdrive/f/Python/26/Scripts/virtualenv.exe
-WORKON_HOME=/cygdrive/f/Newman/env
+VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python2.7
+WORKON_HOME=$HOME/dev/python/env
+VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/Cellar/python/2.7.1/bin/virtualenv
 export OSTYPE
-export CYGWIN_HOME=/cygdrive/f/cygwin
+#export CYGWIN_HOME=/cygdrive/f/cygwin
 #cxuan
 # Locate the global Python where virtualenvwrapper is installed.
 if [ "$VIRTUALENVWRAPPER_PYTHON" = "" ]

@@ -21,7 +21,10 @@ is_msys = False
 is_cygwin_win32py = False
     
 # Are we running under msys or cygwin + windows python
-uname = subprocess.Popen(['uname'], stdout=subprocess.PIPE).communicate()[0]
+try:
+    uname = subprocess.Popen(['uname'], stdout=subprocess.PIPE).communicate()[0]
+except:
+    uname = 'probably windows'
 if sys.platform == 'win32' and os.environ.get('OS') == 'Windows_NT':
     script_folder = 'Scripts'
     if os.environ.get('MSYSTEM') == 'MINGW32':
@@ -41,7 +44,7 @@ def run_script(script_path, *args):
         if is_msys:
             cmd = [get_path(os.environ['MSYS_HOME'],'bin','sh.exe')] + cmd
         elif is_cygwin_win32py:
-            cmd = ['sh.exe'] + cmd
+            cmd = [get_path(os.environ['CYGWIN_HOME'],'bin','sh.exe')] + cmd
         log.debug('running %s', str(cmd))
         try:
             return_code = subprocess.call(cmd)
@@ -266,10 +269,37 @@ def get_path(*args):
             path = ''.join((path[1],':',path[2:]))
         path = path.replace('/', os.sep)
     elif is_cygwin_win32py:
-        if not path.startswith('/cygdrive') and not re.match(r'[a-zA-Z]:.*', path):
-            path = os.environ['CYGWIN_HOME'] + path
-        if re.match(r'^/cygdrive/[a-zA-Z](/|^)', path):
-            # cygwin path could starts with '/cygdrive/c/'-form drive letter
-            path = ''.join((path[10],':',path[11:]))
-        path = path.replace('/', os.sep)
+        try:
+            #cygpath is shipped with cygwin.
+            #it is the preferred option as it 
+            #converts all these styles of path. 
+            # -w windows
+            # -a absolute
+            # 1. windows style: C:\Python\26
+            # 2. cygwin style: /cygdrive/c/Python/26
+            # 3. path starts with tilde: ~/foo/bar 
+            # 4. path relative to CYGWIN_HOME (not starts with /cygdrive): /tmp
+            # 5. symlink
+            path= subprocess.Popen(['cygpath', '-wa', path], stdout=subprocess.PIPE).communicate()[0]
+        except:
+            #if for some reason cygpath fails, e.g. cygpath is missing,
+            #fallback to use this logic. It should handle 1, 2, 3, 4
+            #but not 5.
+            #already windows style path, leave it alone
+            if re.match(r'[a-zA-Z]:.*', path):
+                pass
+            #relative path to CYGINW_HOME
+            elif not path.startswith('/cygdrive'):
+                #e.g. /var
+                #convert to absolute cygwin style path.
+                if path.startswith('/'):
+                    path = os.environ['CYGWIN_HOME'] + path
+                #e.g. ~/tmp
+                elif path.startswith('~'):
+                    home_dir = os.environ.get('HOME')
+                    path = home_dir + path[1:]
+            #convert cygwin style path to windows style.
+            if re.match(r'^/cygdrive/[a-zA-Z](/|^)', path):
+                path = ''.join((path[10],':',path[11:]))
+            path = path.replace('/', os.sep)
     return os.path.abspath(path)
