@@ -44,14 +44,9 @@
 # 11. The virtual environment is activated.
 #
 
-#cxuan
-#set -x
-VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python2.7
-WORKON_HOME=$HOME/dev/python/env
-VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/Cellar/python/2.7.1/bin/virtualenv
+#for cygwin + windows python to work.
 export OSTYPE
-#export CYGWIN_HOME=/cygdrive/f/cygwin
-#cxuan
+
 # Locate the global Python where virtualenvwrapper is installed.
 if [ "$VIRTUALENVWRAPPER_PYTHON" = "" ]
 then

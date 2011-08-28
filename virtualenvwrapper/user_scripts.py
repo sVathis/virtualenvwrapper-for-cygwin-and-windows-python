@@ -280,7 +280,7 @@ def get_path(*args):
             # 3. path starts with tilde: ~/foo/bar 
             # 4. path relative to CYGWIN_HOME (not starts with /cygdrive): /tmp
             # 5. symlink
-            path= subprocess.Popen(['cygpath', '-wa', path], stdout=subprocess.PIPE).communicate()[0]
+            path=subprocess.Popen(['cygpath', '-wa', path], stdout=subprocess.PIPE).communicate()[0].strip()
         except:
             #if for some reason cygpath fails, e.g. cygpath is missing,
             #fallback to use this logic. It should handle 1, 2, 3, 4
