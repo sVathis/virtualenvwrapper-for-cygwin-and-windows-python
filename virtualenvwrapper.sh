@@ -514,7 +514,13 @@ virtualenvwrapper_get_python_version () {
 
 # Prints the path to the site-packages directory for the current environment.
 virtualenvwrapper_get_site_packages_dir () {
-    echo "$VIRTUAL_ENV/lib/python`virtualenvwrapper_get_python_version`/site-packages"    
+    if [ is_cygwin_win32py ]
+    then
+        echo "$VIRTUAL_ENV/Lib/site-packages"
+    else
+        echo "$VIRTUAL_ENV/lib/python`virtualenvwrapper_get_python_version`/site-packages"    
+            
+    fi
 }
 
 # Path management for packages outside of the virtual env.
