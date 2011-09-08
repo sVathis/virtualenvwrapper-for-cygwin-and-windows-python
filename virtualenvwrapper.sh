@@ -44,6 +44,13 @@
 # 11. The virtual environment is activated.
 #
 
+#cxuan
+#set -x
+VIRTUALENVWRAPPER_PYTHON=/cygdrive/c/Python/26/python.exe
+VIRTUALENVWRAPPER_VIRTUALENV=/cygdrive/c/Python/26/Scripts/virtualenv.exe
+WORKON_HOME=/cygdrive/d/NewmanDev/env
+export VIRTUALENVWRAPPER_LOG_DIR="D:\NewmanDev\env"
+#cxuan
 # Locate the global Python where virtualenvwrapper is installed.
 if [ "$VIRTUALENVWRAPPER_PYTHON" = "" ]
 then
@@ -58,7 +65,7 @@ fi
 
 # Define script folder depending on the platorm (Win32/Unix)
 VIRTUALENVWRAPPER_ENV_BIN_DIR="bin"
-if [ "$OS" = "Windows_NT" ] && [ "$MSYSTEM" = "MINGW32" ]
+if ( [ "$OS" = "Windows_NT" ] && [ "$MSYSTEM" = "MINGW32" ] ) || [ is_cygwin_win32py ]
 then
 	# Only assign this for msys, cygwin use standard Unix paths
 	# and its own python installation 
@@ -147,7 +154,12 @@ virtualenvwrapper_run_hook () {
         echo "ERROR: VIRTUALENVWRAPPER_LOG_DIR is not set." 1>&2
         return 1
     fi
-    "$VIRTUALENVWRAPPER_PYTHON" -c 'from virtualenvwrapper.hook_loader import main; main()' $HOOK_VERBOSE_OPTION --script "$hook_script" "$@"
+    if [ is_cygwin_win32py ]
+    then
+        "$VIRTUALENVWRAPPER_PYTHON" -c 'from virtualenvwrapper.hook_loader import main; main()' $HOOK_VERBOSE_OPTION --script $(cygpath -w $hook_script) "$@"
+    else
+        "$VIRTUALENVWRAPPER_PYTHON" -c 'from virtualenvwrapper.hook_loader import main; main()' $HOOK_VERBOSE_OPTION --script "$hook_script" "$@"
+    fi
     result=$?
     
     if [ $result -eq 0 ]
@@ -159,7 +171,7 @@ virtualenvwrapper_run_hook () {
         fi
         source "$hook_script"
     fi
-    \rm -f "$hook_script" >/dev/null 2>&1
+    #\rm -f "$hook_script" >/dev/null 2>&1
     return $result
 }
 
@@ -545,7 +557,7 @@ add2virtualenv () {
     touch "$path_file"
     for pydir in "$@"
     do
-        absolute_path=$("$VIRTUALENVWRAPPER_PYTHON" -c "import os; print os.path.abspath(\"$pydir\")")
+        absolute_path=$("$VIRTUALENVWRAPPER_PYTHON" -c "import os, sys; sys.stdout.write(os.path.abspath(\"$pydir\")); sys.stdout.flush()")
         if [ "$absolute_path" != "$pydir" ]
         then
             echo "Warning: Converting \"$pydir\" to \"$absolute_path\"" 1>&2
@@ -651,6 +663,16 @@ cpvirtualenv() {
     workon "$new_env"
     virtualenvwrapper_run_hook "post_mkvirtualenv"
     virtualenvwrapper_run_hook "post_cpvirtualenv"
+}
+
+is_cygwin_win32py () {
+    _PLATFORM=$($VIRTUALENVWRAPPER_PYTHON -c "import sys; sys.stdout.write(sys.platform); sys.stdout.flush()")
+    if [ "$OSTYPE" = "cygwin" ] && [ "$_PLATFORM" = "win32" ] 
+    then 
+        return 1
+    else
+        return 0
+    fi
 }
 
 #

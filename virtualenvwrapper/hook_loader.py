@@ -107,7 +107,7 @@ def main():
     if options.script_filename:
         log.debug('Saving sourcable %s hooks to %s', hook, options.script_filename)
         options.sourcing = True
-        output = open(options.script_filename, "w")
+        output = open(options.script_filename, "wb")
         try:
             output.write('# %s\n' % hook)
             run_hooks(hook + '_source', options, args, output)
