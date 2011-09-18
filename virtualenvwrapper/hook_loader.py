@@ -14,6 +14,7 @@ import os
 import sys
 
 import pkg_resources
+from user_scripts import get_path
 
 def main():
     parser = optparse.OptionParser(
@@ -67,7 +68,7 @@ def main():
     # Set up logging to a file
     root_logger.setLevel(logging.DEBUG)
     file_handler = logging.handlers.RotatingFileHandler(
-        os.path.expandvars(os.path.join('$VIRTUALENVWRAPPER_LOG_DIR', 'hook.log')),
+        get_path(os.path.expandvars(os.path.join('$VIRTUALENVWRAPPER_LOG_DIR', 'hook.log'))),
         maxBytes=10240,
         backupCount=1,
         )
@@ -107,7 +108,7 @@ def main():
     if options.script_filename:
         log.debug('Saving sourcable %s hooks to %s', hook, options.script_filename)
         options.sourcing = True
-        output = open(options.script_filename, "w")
+        output = open(get_path(options.script_filename), "wb")
         try:
             output.write('# %s\n' % hook)
             run_hooks(hook + '_source', options, args, output)
