@@ -44,9 +44,6 @@
 # 11. The virtual environment is activated.
 #
 
-#for cygwin + windows python to work.
-export OSTYPE
-
 # Locate the global Python where virtualenvwrapper is installed.
 if [ "$VIRTUALENVWRAPPER_PYTHON" = "" ]
 then

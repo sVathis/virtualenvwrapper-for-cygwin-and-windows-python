@@ -29,8 +29,7 @@ if sys.platform == 'win32' and os.environ.get('OS') == 'Windows_NT':
     script_folder = 'Scripts'
     if os.environ.get('MSYSTEM') == 'MINGW32':
         is_msys = True
-    #elif uname.startswith('CYGWIN'):
-    elif os.environ.get('OSTYPE') == 'cygwin':
+    elif uname.startswith('CYGWIN'):
         is_cygwin_win32py = True
 else:
     script_folder = 'bin'
