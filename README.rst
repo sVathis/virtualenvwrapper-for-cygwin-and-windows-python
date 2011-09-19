@@ -12,4 +12,6 @@ This fork could be your choice if you want to use virtualenvwrapper.
 
 Mainly because the bug fix in pull request https://github.com/pypa/virtualenv/pull/107 has not yet been accepted by mainline virtualenv.
 
+Once the bug fix is in, I'll send a pull request.
+
 Cliff
