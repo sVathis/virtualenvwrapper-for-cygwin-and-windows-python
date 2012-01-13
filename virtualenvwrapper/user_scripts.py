@@ -43,7 +43,7 @@ def run_script(script_path, *args):
         if is_msys:
             cmd = [get_path(os.environ['MSYS_HOME'],'bin','sh.exe')] + cmd
         elif is_cygwin_win32py:
-            cmd = [get_path(os.environ['CYGWIN_HOME'],'bin','sh.exe')] + cmd
+            cmd = ['sh.exe'] + cmd
         log.debug('running %s', str(cmd))
         try:
             return_code = subprocess.call(cmd)
@@ -268,37 +268,15 @@ def get_path(*args):
             path = ''.join((path[1],':',path[2:]))
         path = path.replace('/', os.sep)
     elif is_cygwin_win32py:
-        try:
-            #cygpath is shipped with cygwin.
-            #it is the preferred option as it 
-            #converts all these styles of path. 
-            # -w windows
-            # -a absolute
-            # 1. windows style: C:\Python\26
-            # 2. cygwin style: /cygdrive/c/Python/26
-            # 3. path starts with tilde: ~/foo/bar 
-            # 4. path relative to CYGWIN_HOME (not starts with /cygdrive): /tmp
-            # 5. symlink
-            path=subprocess.Popen(['cygpath', '-wa', path], stdout=subprocess.PIPE).communicate()[0].strip()
-        except:
-            #if for some reason cygpath fails, e.g. cygpath is missing,
-            #fallback to use this logic. It should handle 1, 2, 3, 4
-            #but not 5.
-            #already windows style path, leave it alone
-            if re.match(r'[a-zA-Z]:.*', path):
-                pass
-            #relative path to CYGINW_HOME
-            elif not path.startswith('/cygdrive'):
-                #e.g. /var
-                #convert to absolute cygwin style path.
-                if path.startswith('/'):
-                    path = os.environ['CYGWIN_HOME'] + path
-                #e.g. ~/tmp
-                elif path.startswith('~'):
-                    home_dir = os.environ.get('HOME')
-                    path = home_dir + path[1:]
-            #convert cygwin style path to windows style.
-            if re.match(r'^/cygdrive/[a-zA-Z](/|^)', path):
-                path = ''.join((path[10],':',path[11:]))
-            path = path.replace('/', os.sep)
+        #cygpath is shipped with cygwin.
+        #it is the preferred option as it 
+        #converts all these styles of path. 
+        # -w windows
+        # -a absolute
+        # 1. windows style: C:\Python\26
+        # 2. cygwin style: /cygdrive/c/Python/26
+        # 3. path starts with tilde: ~/foo/bar 
+        # 4. path relative to CYGWIN_HOME (not starts with /cygdrive): /tmp
+        # 5. symlink
+        path=subprocess.Popen(['cygpath', '-wa', path], stdout=subprocess.PIPE).communicate()[0].strip()
     return os.path.abspath(path)
