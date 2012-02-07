@@ -56,7 +56,7 @@ then
     VIRTUALENVWRAPPER_VIRTUALENV="virtualenv"
 fi
 
-is_cygwin_win32py () {
+function is_cygwin_win32py () {
     _PLATFORM=$($VIRTUALENVWRAPPER_PYTHON -c "import sys; sys.stdout.write(sys.platform); sys.stdout.flush()")
     if [ "$OSTYPE" = "cygwin" ] && [ "$_PLATFORM" = "win32" ] 
     then 
@@ -73,6 +73,13 @@ then
 	# Only assign this for msys, cygwin use standard Unix paths
 	# and its own python installation 
 	VIRTUALENVWRAPPER_ENV_BIN_DIR="Scripts"
+fi
+
+# Let the user override the name of the file that holds the project
+# directory name.
+if [ "$VIRTUALENVWRAPPER_PROJECT_FILENAME" = "" ]
+then
+    export VIRTUALENVWRAPPER_PROJECT_FILENAME=".project"
 fi
 
 function virtualenvwrapper_derive_workon_home {
@@ -102,7 +109,7 @@ function virtualenvwrapper_derive_workon_home {
         # - Removing extra slashes (e.g., when TMPDIR ends in a slash)
         # - Expanding variables (e.g., $foo)
         # - Converting ~s to complete paths (e.g., ~/ to /home/brian/ and ~arthur to /home/arthur)
-        workon_home_dir=$("$VIRTUALENVWRAPPER_PYTHON" -c "import os; print os.path.expandvars(os.path.expanduser(\"$workon_home_dir\"))")
+        workon_home_dir=$("$VIRTUALENVWRAPPER_PYTHON" -c "import os,sys; sys.stdout.write(os.path.expandvars(os.path.expanduser(\"$workon_home_dir\"))+'\n')")
     fi
 
     echo "$workon_home_dir"
@@ -170,7 +177,7 @@ function virtualenvwrapper_run_hook {
         # cat "$hook_script"
         source "$hook_script"
     fi
-    #\rm -f "$hook_script" >/dev/null 2>&1
+    \rm -f "$hook_script" >/dev/null 2>&1
     return $result
 }
 
@@ -239,6 +246,7 @@ function virtualenvwrapper_initialize {
 
     virtualenvwrapper_setup_tab_completion
 
+    return 0
 }
 
 
@@ -281,7 +289,12 @@ function virtualenvwrapper_verify_active_environment {
 
 # Help text for mkvirtualenv
 function mkvirtualenv_help {
-    echo "Usage: mkvirtualenv [-i package] [-r requirements_file] [virtualenv options] env_name"
+    echo "Usage: mkvirtualenv [-a project_path] [-i package] [-r requirements_file] [virtualenv options] env_name"
+    echo
+    echo " -a project_path"
+    echo
+    echo "    Provide a full path to a project directory to associate with"
+    echo "    the new environment."
     echo
     echo " -i package"
     echo
@@ -328,6 +341,9 @@ function mkvirtualenv {
         a="${in_args[$i]}"
         # echo "arg $i : $a"
         case "$a" in
+            -a)
+                i=$(( $i + 1 ));
+                project="${in_args[$i]}";;
             -h)
                 mkvirtualenv_help;
                 return;;
@@ -379,6 +395,11 @@ function mkvirtualenv {
     do
         pip install $a
     done
+
+    if [ ! -z "$project" ]
+    then
+        setvirtualenvproject "" "$project"
+    fi
 
     virtualenvwrapper_run_hook "post_mkvirtualenv"
 }
@@ -580,14 +601,15 @@ function workon {
 
 # Prints the Python version string for the current interpreter.
 function virtualenvwrapper_get_python_version {
-    # Uses the Python from the virtualenv because we're trying to
-    # determine the version installed there so we can build
-    # up the path to the site-packages directory.
-    python -V 2>&1 | cut -f2 -d' ' | cut -f-2 -d.
+    # Uses the Python from the virtualenv rather than
+    # VIRTUALENVWRAPPER_PYTHON because we're trying to determine the
+    # version installed there so we can build up the path to the
+    # site-packages directory.
+    "$VIRTUAL_ENV/bin/python" -V 2>&1 | cut -f2 -d' ' | cut -f-2 -d.
 }
 
 # Prints the path to the site-packages directory for the current environment.
-virtualenvwrapper_get_site_packages_dir () {
+function virtualenvwrapper_get_site_packages_dir () {
     if is_cygwin_win32py
     then
         echo "$VIRTUAL_ENV/Lib/site-packages"
@@ -801,7 +823,7 @@ function setvirtualenvproject {
         prj="$(pwd)"
     fi
     echo "Setting project for $(basename $venv) to $prj"
-    echo "$prj" > "$venv/.project"
+    echo "$prj" > "$venv/$VIRTUALENVWRAPPER_PROJECT_FILENAME"
 }
 
 # Show help for mkproject
@@ -906,9 +928,9 @@ function mkproject {
 function cdproject {
     virtualenvwrapper_verify_workon_home || return 1
     virtualenvwrapper_verify_active_environment || return 1
-    if [ -f "$VIRTUAL_ENV/.project" ]
+    if [ -f "$VIRTUAL_ENV/$VIRTUALENVWRAPPER_PROJECT_FILENAME" ]
     then
-        project_dir=$(cat "$VIRTUAL_ENV/.project")
+        project_dir=$(cat "$VIRTUAL_ENV/$VIRTUALENVWRAPPER_PROJECT_FILENAME")
         if [ ! -z "$project_dir" ]
         then
             cd "$project_dir"
@@ -917,7 +939,7 @@ function cdproject {
             return 1
         fi
     else
-        echo "No project set in $VIRTUAL_ENV/.project" 1>&2
+        echo "No project set in $VIRTUAL_ENV/$VIRTUALENVWRAPPER_PROJECT_FILENAME" 1>&2
         return 1
     fi
     return 0
@@ -930,22 +952,18 @@ function cdproject {
 #
 mktmpenv() {
     typeset tmpenvname
+    typeset RC
 
-    # Generate a unique temporary name, if one is not given.
-    if [ $# -eq 0 ]
+    # Generate a unique temporary name
+    tmpenvname=$("$VIRTUALENVWRAPPER_PYTHON" -c 'import uuid,sys; sys.stdout.write(uuid.uuid4()+"\n")' 2>/dev/null)
+    if [ -z "$tmpenvname" ]
     then
-        tmpenvname=$("$VIRTUALENVWRAPPER_PYTHON" -c 'import uuid; print uuid.uuid4()' 2>/dev/null)
-        if [ -z "$tmpenvname" ]
-        then
-            # This python does not support uuid
-            tmpenvname=$("$VIRTUALENVWRAPPER_PYTHON" -c 'import random; print hex(random.getrandbits(64))[2:-1]' 2>/dev/null)
-        fi
-        mkvirtualenv "$tmpenvname"
-    else
-        mkvirtualenv "$@"
+        # This python does not support uuid
+        tmpenvname=$("$VIRTUALENVWRAPPER_PYTHON" -c 'import random,sys; sys.stdout.write(hex(random.getrandbits(64))[2:-1]+"\n")' 2>/dev/null)
     fi
 
     # Create the environment
+    mkvirtualenv "$@" "$tmpenvname"
     RC=$?
     if [ $RC -ne 0 ]
     then

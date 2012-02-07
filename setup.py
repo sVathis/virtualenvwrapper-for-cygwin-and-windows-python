@@ -3,7 +3,7 @@
 PROJECT = 'virtualenvwrapper'
 
 # Change docs/sphinx/conf.py too!
-VERSION = '2.10'
+VERSION = '3.0'
 
 # Bootstrap installation of Distribute
 import distribute_setup
@@ -129,10 +129,10 @@ setup(
                     'License :: OSI Approved :: BSD License',
                     'Programming Language :: Python',
                     'Programming Language :: Python :: 2',
-                    'Programming Language :: Python :: 2.4',
-                    'Programming Language :: Python :: 2.5',
                     'Programming Language :: Python :: 2.6',
                     'Programming Language :: Python :: 2.7',
+                    'Programming Language :: Python :: 3',
+                    'Programming Language :: Python :: 3.2',
                     'Intended Audience :: Developers',
                     'Environment :: Console',
                     ],

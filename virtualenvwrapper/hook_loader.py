@@ -16,6 +16,15 @@ import sys
 import pkg_resources
 from user_scripts import get_path
 
+class GroupWriteRotatingFileHandler(logging.handlers.RotatingFileHandler):
+    """Taken from http://stackoverflow.com/questions/1407474/does-python-logging-handlers-rotatingfilehandler-allow-creation-of-a-group-writa
+    """
+    def _open(self):
+        prevumask = os.umask(0o002)
+        rtv = logging.handlers.RotatingFileHandler._open(self)
+        os.umask(prevumask)
+        return rtv
+
 def main():
     parser = optparse.OptionParser(
         usage='usage: %prog [options] <hook> [<arguments>]',
@@ -126,7 +135,7 @@ def run_hooks(hook, options, args, output=None):
             continue
         plugin = ep.load()
         if options.listing:
-            print '  %-10s -- %s' % (ep.name, inspect.getdoc(plugin) or '')
+            sys.stdout.write('  %-10s -- %s\n' % (ep.name, inspect.getdoc(plugin) or ''))
             continue
         if options.sourcing:
             # Show the shell commands so they can

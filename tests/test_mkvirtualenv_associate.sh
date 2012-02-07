@@ -22,17 +22,13 @@ setUp () {
     rm -f "$test_dir/catch_output"
 }
 
-test_single_package () {
-    mkvirtualenv -i IPy "env4"
-    installed=$(pip freeze)
-    assertTrue "IPy not found in $installed" "pip freeze | grep IPy"
-}
-
-test_multiple_packages () {
-    mkvirtualenv -i IPy -i WebTest "env5"
-    installed=$(pip freeze)
-    assertTrue "IPy not found in $installed" "pip freeze | grep IPy"
-    assertTrue "WebTest not found in $installed" "pip freeze | grep WebTest"
+test_associate() {
+    project="/dev/null"
+    env="env1"
+    ptrfile="$WORKON_HOME/$env/.project"
+    mkvirtualenv -a "$project" "$env" >/dev/null 2>&1
+    assertTrue ".project not found" "[ -f $ptrfile ]"
+    assertEquals "$ptrfile contains wrong content" "$project" "$(cat $ptrfile)"
 }
 
 . "$test_dir/shunit2"
