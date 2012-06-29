@@ -56,6 +56,16 @@ then
     VIRTUALENVWRAPPER_VIRTUALENV="virtualenv"
 fi
 
+function is_cygwin_win32py () {
+    _PLATFORM=$($VIRTUALENVWRAPPER_PYTHON -c "import sys; sys.stdout.write(sys.platform); sys.stdout.flush()")
+    if [ "$OSTYPE" = "cygwin" ] && [ "$_PLATFORM" = "win32" ] 
+    then 
+        return 0
+    else
+        return 1
+    fi
+}
+
 # Set the name of the virtualenv-clone app to use.
 if [ "$VIRTUALENVWRAPPER_VIRTUALENV_CLONE" = "" ]
 then
@@ -64,7 +74,7 @@ fi
 
 # Define script folder depending on the platorm (Win32/Unix)
 VIRTUALENVWRAPPER_ENV_BIN_DIR="bin"
-if [ "$OS" = "Windows_NT" ] && [ "$MSYSTEM" = "MINGW32" ]
+if ( [ "$OS" = "Windows_NT" ] && [ "$MSYSTEM" = "MINGW32" ] ) || is_cygwin_win32py
 then
     # Only assign this for msys, cygwin use standard Unix paths
     # and its own python installation
@@ -727,7 +737,7 @@ function add2virtualenv {
 
     for pydir in "$@"
     do
-        absolute_path=$("$VIRTUALENVWRAPPER_PYTHON" -c "import os,sys; sys.stdout.write(os.path.abspath(\"$pydir\")+'\n')")
+        absolute_path=$("$VIRTUALENVWRAPPER_PYTHON" -c "import os, sys; sys.stdout.write(os.path.abspath(\"$pydir\")); sys.stdout.flush()")
         if [ "$absolute_path" != "$pydir" ]
         then
             echo "Warning: Converting \"$pydir\" to \"$absolute_path\"" 1>&2

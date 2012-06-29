@@ -13,9 +13,9 @@ import optparse
 import os
 import sys
 
+from user_scripts import get_path
 from stevedore import ExtensionManager
 from stevedore import NamedExtensionManager
-
 
 class GroupWriteRotatingFileHandler(logging.handlers.RotatingFileHandler):
     """Taken from http://stackoverflow.com/questions/1407474/does-python-logging-handlers-rotatingfilehandler-allow-creation-of-a-group-writa
@@ -78,8 +78,8 @@ def main():
 
     # Set up logging to a file
     root_logger.setLevel(logging.DEBUG)
-    file_handler = GroupWriteRotatingFileHandler(
-        os.path.expandvars(os.path.join('$VIRTUALENVWRAPPER_LOG_DIR', 'hook.log')),
+    file_handler = logging.handlers.RotatingFileHandler(
+        get_path(os.path.expandvars(os.path.join('$VIRTUALENVWRAPPER_LOG_DIR', 'hook.log'))),
         maxBytes=10240,
         backupCount=1,
         )
@@ -123,7 +123,7 @@ def main():
     if options.script_filename:
         log.debug('Saving sourcable %s hooks to %s', hook, options.script_filename)
         options.sourcing = True
-        output = open(options.script_filename, "w")
+        output = open(get_path(options.script_filename), "wb")
         try:
             output.write('# %s\n' % hook)
             # output.write('echo %s\n' % hook)
