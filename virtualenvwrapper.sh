@@ -687,7 +687,7 @@ function virtualenvwrapper_get_python_version {
 
 # Prints the path to the site-packages directory for the current environment.
 function virtualenvwrapper_get_site_packages_dir {
-    "$VIRTUAL_ENV/$VIRTUALENVWRAPPER_ENV_BIN_DIR/python" -c "import distutils, sys; sys.stdout.write(distutils.sysconfig.get_python_lib()); sys.stdout.flush()"
+    "$VIRTUAL_ENV/$VIRTUALENVWRAPPER_ENV_BIN_DIR/python" -c "import distutils.sysconfig, sys; sys.stdout.write(distutils.sysconfig.get_python_lib()); sys.stdout.flush()"
 }
 
 # Path management for packages outside of the virtual env.
