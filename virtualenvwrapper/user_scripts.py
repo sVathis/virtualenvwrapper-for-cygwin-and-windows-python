@@ -15,16 +15,21 @@ import sys
 
 log = logging.getLogger(__name__)
 
-# Are we running under msys
-if (sys.platform == 'win32'
-    and
-    os.environ.get('OS') == 'Windows_NT'
-    and
-    os.environ.get('MSYSTEM') == 'MINGW32'):
-    is_msys = True
+is_msys = False
+is_cygwin_win32py = False
+    
+# Are we running under msys or cygwin + windows native python
+try:
+    uname = subprocess.Popen(['uname'], stdout=subprocess.PIPE).communicate()[0]
+except:
+    uname = 'probably windows'
+if sys.platform == 'win32' and os.environ.get('OS') == 'Windows_NT':
     script_folder = 'Scripts'
+    if os.environ.get('MSYSTEM') == 'MINGW32':
+        is_msys = True
+    elif uname.startswith('CYGWIN'):
+        is_cygwin_win32py = True
 else:
-    is_msys = False
     script_folder = 'bin'
 
 
@@ -35,6 +40,8 @@ def run_script(script_path, *args):
         cmd = [script_path] + list(args)
         if is_msys:
             cmd = [get_path(os.environ['MSYS_HOME'], 'bin', 'sh.exe')] + cmd
+        elif is_cygwin_win32py:
+            cmd = ['sh.exe'] + cmd
         log.debug('running %s', str(cmd))
         try:
             subprocess.call(cmd)
@@ -121,7 +128,7 @@ def make_hook(filename, comment):
     filename = get_path(filename)
     if not os.path.exists(filename):
         log.info('creating %s', filename)
-        f = open(filename, 'w')
+        f = open(filename, 'wb')
         try:
             f.write("""#!%(shell)s
 # %(comment)s
@@ -268,5 +275,16 @@ def get_path(*args):
             # msys path could starts with '/c/'-form drive letter
             path = ''.join((path[1], ':', path[2:]))
         path = path.replace('/', os.sep)
-
+    elif is_cygwin_win32py:
+        #cygpath is shipped with cygwin.
+        #it is the preferred option as it 
+        #converts all these styles of path. 
+        # -w windows
+        # -a absolute
+        # 1. windows style: C:\Python\26
+        # 2. cygwin style: /cygdrive/c/Python/26
+        # 3. path starts with tilde: ~/foo/bar 
+        # 4. path relative to CYGWIN_HOME (not starts with /cygdrive): /tmp
+        # 5. symlink
+        path=subprocess.Popen(['cygpath', '-wa', path], stdout=subprocess.PIPE).communicate()[0].strip()
     return os.path.abspath(path)

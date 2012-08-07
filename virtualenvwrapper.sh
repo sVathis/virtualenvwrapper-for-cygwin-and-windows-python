@@ -56,6 +56,25 @@ then
     VIRTUALENVWRAPPER_VIRTUALENV="virtualenv"
 fi
 
+function is_cygwin_win32py {
+    _PLATFORM=$($VIRTUALENVWRAPPER_PYTHON -c "import sys; sys.stdout.write(sys.platform); sys.stdout.flush()")
+    if [ "$OSTYPE" = "cygwin" ] && [ "$_PLATFORM" = "win32" ] 
+    then 
+        return 0
+    else
+        return 1
+    fi
+}
+
+function is_msys {
+    if [ "$OS" = "Windows_NT" ] && [ "$MSYSTEM" = "MINGW32" ]
+    then 
+        return 0
+    else
+        return 1
+    fi
+}
+
 # Set the name of the virtualenv-clone app to use.
 if [ "$VIRTUALENVWRAPPER_VIRTUALENV_CLONE" = "" ]
 then
@@ -64,10 +83,8 @@ fi
 
 # Define script folder depending on the platorm (Win32/Unix)
 VIRTUALENVWRAPPER_ENV_BIN_DIR="bin"
-if [ "$OS" = "Windows_NT" ] && [ "$MSYSTEM" = "MINGW32" ]
+if is_msys || is_cygwin_win32py
 then
-    # Only assign this for msys, cygwin use standard Unix paths
-    # and its own python installation
     VIRTUALENVWRAPPER_ENV_BIN_DIR="Scripts"
 fi
 
@@ -670,7 +687,7 @@ function virtualenvwrapper_get_python_version {
 
 # Prints the path to the site-packages directory for the current environment.
 function virtualenvwrapper_get_site_packages_dir {
-    "$VIRTUAL_ENV/$VIRTUALENVWRAPPER_ENV_BIN_DIR/python" -c "import distutils; print(distutils.sysconfig.get_python_lib())"
+    "$VIRTUAL_ENV/$VIRTUALENVWRAPPER_ENV_BIN_DIR/python" -c "import distutils.sysconfig, sys; sys.stdout.write(distutils.sysconfig.get_python_lib()); sys.stdout.flush()"
 }
 
 # Path management for packages outside of the virtual env.
@@ -727,7 +744,7 @@ function add2virtualenv {
 
     for pydir in "$@"
     do
-        absolute_path=$("$VIRTUALENVWRAPPER_PYTHON" -c "import os,sys; sys.stdout.write(os.path.abspath(\"$pydir\")+'\n')")
+        absolute_path=$("$VIRTUALENVWRAPPER_PYTHON" -c "import os, sys; sys.stdout.write(os.path.abspath(\"$pydir\")); sys.stdout.flush()")
         if [ "$absolute_path" != "$pydir" ]
         then
             echo "Warning: Converting \"$pydir\" to \"$absolute_path\"" 1>&2
