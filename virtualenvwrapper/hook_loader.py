@@ -87,7 +87,7 @@ def main():
 
     # Set up logging to a file
     root_logger.setLevel(logging.DEBUG)
-    file_handler = logging.handlers.RotatingFileHandler(
+    file_handler = GroupWriteRotatingFileHandler(
         get_path(os.path.expandvars(os.path.join('$VIRTUALENVWRAPPER_LOG_DIR',
                                         'hook.log'))),
         maxBytes=10240,
