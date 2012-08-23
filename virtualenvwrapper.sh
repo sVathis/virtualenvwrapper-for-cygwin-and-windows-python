@@ -56,18 +56,9 @@ then
     VIRTUALENVWRAPPER_VIRTUALENV="virtualenv"
 fi
 
-function is_cygwin_win32py {
+function virtualenvwrapper_is_win32 {
     typeset platform=$($VIRTUALENVWRAPPER_PYTHON -c "import sys; sys.stdout.write(sys.platform); sys.stdout.flush()")
-    if [ "$OSTYPE" = "cygwin" ] && [ "$platform" = "win32" ] 
-    then 
-        return 0
-    else
-        return 1
-    fi
-}
-
-function is_msys {
-    if [ "$OS" = "Windows_NT" ] && [ "$MSYSTEM" = "MINGW32" ]
+    if [ "$platform" = "win32" ]
     then 
         return 0
     else
@@ -82,10 +73,11 @@ then
 fi
 
 # Define script folder depending on the platorm (Win32/Unix)
-VIRTUALENVWRAPPER_ENV_BIN_DIR="bin"
-if is_msys || is_cygwin_win32py
+if virtualenvwrapper_is_win32
 then
     VIRTUALENVWRAPPER_ENV_BIN_DIR="Scripts"
+else
+    VIRTUALENVWRAPPER_ENV_BIN_DIR="bin"
 fi
 
 # Let the user override the name of the file that holds the project
