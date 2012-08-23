@@ -57,8 +57,8 @@ then
 fi
 
 function is_cygwin_win32py {
-    _PLATFORM=$($VIRTUALENVWRAPPER_PYTHON -c "import sys; sys.stdout.write(sys.platform); sys.stdout.flush()")
-    if [ "$OSTYPE" = "cygwin" ] && [ "$_PLATFORM" = "win32" ] 
+    typeset platform=$($VIRTUALENVWRAPPER_PYTHON -c "import sys; sys.stdout.write(sys.platform); sys.stdout.flush()")
+    if [ "$OSTYPE" = "cygwin" ] && [ "$platform" = "win32" ] 
     then 
         return 0
     else
