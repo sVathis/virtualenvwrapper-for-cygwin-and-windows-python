@@ -6,10 +6,16 @@ To get it work you need virtualenv >= 1.7.1 (http://www.virtualenv.org/en/latest
 
 In your .bashrc or .zshrc, specify (all in unix style file path):
 
+#################################################################################
+
 export VIRTUALENVWRAPPER_PYTHON="/cygdrive/c/Python27/python.exe"
+
 export VIRTUALENVWRAPPER_VIRTUALENV="/cygdrive/c/Python27/Scripts/virtualenv.exe"
+
 source "$HOME/dev/virtualenvwrapper/virtualenvwrapper.sh"
 
-I've submitted a pull request to the main repo, so hopefully before long this feature will be available in main stream virtualenvwrapper.
+#################################################################################
+
+I've submitted a pull request to the main repo, so hopefully before long this feature will be available in mainstream virtualenvwrapper.
 
 Cliff
