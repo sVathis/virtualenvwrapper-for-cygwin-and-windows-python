@@ -1,24 +1,24 @@
-Github mirror of Mercurial repo on bitbucket
-ssh://hg@bitbucket.org/cliffxuan/virtualenvwrapper-for-cygwin-windows-python
+*Github mirror of Mercurial repo on [bitbucket](https://bitbucket.org/cliffxuan/virtualenvwrapper-for-cygwin-windows-python)*
 
-Are you developing on Windows platform using cygwin? Is the windows native python that you use rather than the cygwin one?
+1) Are you developing on Windows platform using cygwin? 
 
-This fork could be your choice if you want to use virtualenvwrapper.
+2) Is the windows native python that you use rather than the cygwin one?
 
-To get it work you need virtualenv >= 1.7.1 (http://www.virtualenv.org/en/latest/news.html#id4) 
+3) Do you want to use [**virtualenvwrapper**](http://www.doughellmann.com/projects/virtualenvwrapper/) by *Doug Hellmann*.
 
-In your .bashrc or .zshrc, specify (all in unix style file path):
+This fork is for you.
 
-#################################################################################
+Requirement
+--
+[**virtualenv >= 1.7.1**](http://www.virtualenv.org/en/latest/news.html#id4) 
 
-export VIRTUALENVWRAPPER_PYTHON="/cygdrive/c/Python27/python.exe"
+In your *.bashrc* or *.zshrc*, specify (all in unix style file path):
 
-export VIRTUALENVWRAPPER_VIRTUALENV="/cygdrive/c/Python27/Scripts/virtualenv.exe"
+    export VIRTUALENVWRAPPER_PYTHON="/cygdrive/c/Python2(x)/python.exe"
 
-source "$HOME/dev/virtualenvwrapper/virtualenvwrapper.sh"
+    export VIRTUALENVWRAPPER_VIRTUALENV="/cygdrive/c/Python2(x)/Scripts/virtualenv.exe"
 
-#################################################################################
+    source "PATH_TO_SCRIPT/virtualenvwrapper.sh"
+
 
 I've submitted a pull request to the main repo, so hopefully before long this feature will be available in mainstream virtualenvwrapper.
-
-Cliff
