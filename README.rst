@@ -1,3 +1,6 @@
+Github mirror of Mercurial repo on bitbucket
+ssh://hg@bitbucket.org/cliffxuan/virtualenvwrapper-for-cygwin-windows-python
+
 Are you developing on Windows platform using cygwin? Is the windows native python that you use rather than the cygwin one?
 
 This fork could be your choice if you want to use virtualenvwrapper.
